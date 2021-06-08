@@ -23,9 +23,9 @@ class Blockchain {
  * other backends to call asynchronous functions.
  */
 constructor() {
-  this.chain = [];
-  this.height = -1;
-  this.initializeChain();
+this.chain = [];
+this.height = -1;
+this.initializeChain();
 }
 
 /**
@@ -34,19 +34,19 @@ constructor() {
  * Passing as a data `{data: 'Genesis Block'}`
  */
 async initializeChain() {
-  if( this.height === -1){
-      let block = new BlockClass.Block({data: 'Genesis Block'});
-      await this._addBlock(block);
-  }
+if( this.height === -1){
+    let block = new BlockClass.Block({data: 'Genesis Block'});
+    await this._addBlock(block);
+}
 }
 
 /**
  * Utility method that return a Promise that will resolve with the height of the chain
  */
 getChainHeight() {
-  return new Promise((resolve, reject) => {
-      resolve(this.height);
-  });
+return new Promise((resolve, reject) => {
+    resolve(this.height);
+});
 }
 
 /**
@@ -62,23 +62,23 @@ getChainHeight() {
  * that this method is a private method.
  */
 _addBlock(block) {
-  let self = this;
-  return new Promise(async (resolve, reject) => {
-    block.height = self.chain.length;
-    block.time = new Date().getTime().toString().slice(0,-3);
-    if (self.chain.length > 0) {
-      block.previousHash = self.chain[self.chain.length -1].hash;
-    }
-    block.hash = SHA256(JSON.stringify(block)).toString();
-    let errors = await self.validateChain();
-    if (errors.length === 0) {
-      self.chain.push(block);
-      self.height++;
-      resolve(block);
-    } else {
-      reject(errors);
-    }
-  });
+let self = this;
+return new Promise(async (resolve, reject) => {
+  block.height = self.chain.length;
+  block.time = new Date().getTime().toString().slice(0,-3);
+  if (self.chain.length > 0) {
+    block.previousHash = self.chain[self.chain.length -1].hash;
+  }
+  block.hash = SHA256(JSON.stringify(block)).toString();
+  let errors = await self.validateChain();
+  if (errors.length === 0) {
+    self.chain.push(block);
+    self.height++;
+    resolve(block);
+  } else {
+    reject(errors);
+  }
+});
 }
 
 /**
@@ -90,9 +90,11 @@ _addBlock(block) {
  * @param {*} address
  */
 requestMessageOwnershipVerification(address) {
-  return new Promise((resolve) => {
+return new Promise((resolve) => {
+  const OwnershipMessage = `${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`; //construct the message as explained, with the address + time + starRegistry
+  resolve(OwnershipMessage); 
 
-  });
+});
 }
 
 /**
@@ -113,10 +115,10 @@ requestMessageOwnershipVerification(address) {
  * @param {*} star
  */
 submitStar(address, message, signature, star) {
-  let self = this;
-  return new Promise(async (resolve, reject) => {
+let self = this;
+return new Promise(async (resolve, reject) => {
 
-  });
+});
 }
 
 /**
@@ -126,10 +128,10 @@ submitStar(address, message, signature, star) {
  * @param {*} hash
  */
 getBlockByHash(hash) {
-  let self = this;
-  return new Promise((resolve, reject) => {
+let self = this;
+return new Promise((resolve, reject) => {
 
-  });
+});
 }
 
 /**
@@ -138,15 +140,15 @@ getBlockByHash(hash) {
  * @param {*} height
  */
 getBlockByHeight(height) {
-  let self = this;
-  return new Promise((resolve, reject) => {
-      let block = self.chain.filter(p => p.height === height)[0];
-      if(block){
-          resolve(block);
-      } else {
-          resolve(null);
-      }
-  });
+let self = this;
+return new Promise((resolve, reject) => {
+    let block = self.chain.filter(p => p.height === height)[0];
+    if(block){
+        resolve(block);
+    } else {
+        resolve(null);
+    }
+});
 }
 
 /**
@@ -156,11 +158,11 @@ getBlockByHeight(height) {
  * @param {*} address
  */
 getStarsByWalletAddress (address) {
-  let self = this;
-  let stars = [];
-  return new Promise((resolve, reject) => {
+let self = this;
+let stars = [];
+return new Promise((resolve, reject) => {
 
-  });
+});
 }
 
 /**
@@ -170,11 +172,11 @@ getStarsByWalletAddress (address) {
  * 2. Each Block should check the with the previousBlockHash
  */
 validateChain() {
-  let self = this;
-  let errorLog = [];
-  return new Promise(async (resolve, reject) => {
+let self = this;
+let errorLog = [];
+return new Promise(async (resolve, reject) => {
 
-  });
+});
 }
 
 }

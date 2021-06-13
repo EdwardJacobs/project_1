@@ -142,7 +142,12 @@ submitStar(address, message, signature, star) {
 getBlockByHash(hash) {
 let self = this;
 return new Promise((resolve, reject) => {
-
+  const block = self.chain.filter(block => block.hash === hash);
+  if (typeof block != 'undefined') {
+    resolve(block);
+  } else {
+    reject(Error('No block with this hash'))
+  }
 });
 }
 

@@ -35,8 +35,8 @@ this.initializeChain();
  */
 async initializeChain() {
 if( this.height === -1){
-    let block = new BlockClass.Block({data: 'Genesis Block'});
-    await this._addBlock(block);
+  let block = new BlockClass.Block({data: 'Genesis Block'});
+  await this._addBlock(block);
 }
 }
 
@@ -45,7 +45,7 @@ if( this.height === -1){
  */
 getChainHeight() {
 return new Promise((resolve, reject) => {
-    resolve(this.height);
+  resolve(this.height);
 });
 }
 
@@ -64,20 +64,20 @@ return new Promise((resolve, reject) => {
 _addBlock(block) {
 let self = this;
 return new Promise(async (resolve, reject) => {
-  block.height = self.chain.length;
-  block.time = new Date().getTime().toString().slice(0,-3);
-  if (self.chain.length > 0) {
-    block.previousHash = self.chain[self.chain.length -1].hash;
-  }
-  block.hash = SHA256(JSON.stringify(block)).toString();
-  let errors = await self.validateChain();
-  if (errors.length === 0) {
-    self.chain.push(block);
-    self.height++;
-    resolve(block);
-  } else {
-    reject(errors);
-  }
+block.height = self.chain.length;
+block.time = new Date().getTime().toString().slice(0,-3);
+if (self.chain.length > 0) {
+  block.previousHash = self.chain[self.chain.length -1].hash;
+}
+block.hash = SHA256(JSON.stringify(block)).toString();
+let errors = await self.validateChain();
+if (errors.length === 0) {
+  self.chain.push(block);
+  self.height++;
+  resolve(block);
+} else {
+  reject(errors);
+}
 });
 }
 
@@ -91,8 +91,8 @@ return new Promise(async (resolve, reject) => {
  */
 requestMessageOwnershipVerification(address) {
 return new Promise((resolve) => {
-  const OwnershipMessage = `${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`; //construct the message as explained, with the address + time + starRegistry
-  resolve(OwnershipMessage); 
+const OwnershipMessage = `${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`; //construct the message as explained, with the address + time + starRegistry
+resolve(OwnershipMessage); 
 
 });
 }
@@ -115,10 +115,22 @@ return new Promise((resolve) => {
  * @param {*} star
  */
 submitStar(address, message, signature, star) {
-let self = this;
-return new Promise(async (resolve, reject) => {
-
-});
+  let self = this;
+  return new Promise(async (resolve, reject) => {
+    let temps = parseInt(message.split(':')[1]);
+    let currentTime = parseInt(new Date().getTime().toString().slice(0,-3));
+    if (currentTime - temps < (5*60)) {
+      if (bitcoinMessage.verify(message, address, signature)) {
+        let block = new BlockClass.Block({"owner":address, "star":star});
+        self._addBlock(block);
+        resolve(block);
+      } else {
+      reject(Error('Message has not been verified'))
+      } 
+    } else {
+      reject(Error('too much time has passed, stay below 5 minutes'))
+    }
+  });
 }
 
 /**
@@ -142,12 +154,12 @@ return new Promise((resolve, reject) => {
 getBlockByHeight(height) {
 let self = this;
 return new Promise((resolve, reject) => {
-    let block = self.chain.filter(p => p.height === height)[0];
-    if(block){
-        resolve(block);
-    } else {
-        resolve(null);
-    }
+  let block = self.chain.filter(p => p.height === height)[0];
+  if(block){
+      resolve(block);
+  } else {
+      resolve(null);
+  }
 });
 }
 

@@ -200,8 +200,29 @@ validateChain() {
 let self = this;
 let errorLog = [];
 return new Promise(async (resolve, reject) => {
-
-});
+  let validatePromises = [];
+  self.chain.forEach((block, index) => {
+    if (block.height > 0) {
+      const previousBlock = self.chain[index - 1];
+      if (block.previousBlockHash !== previousBlock.hash) {
+        const errorMessage = `Block ${index} previousBlockHash set to ${block.previousBlockHash}, but actual previous block hash was ${previousBlock.hash}`;
+        errorLog.push(errorMessage);
+      }
+    }
+    validatePromises.push(block.validate());
+  });
+  Promise.all(validatePromises)
+    .then(validatedBlocks => {
+      validatedBlocks.forEach((valid, index) => {
+        if (!valid) {
+          const invalidBlock = self.chain[index];
+          const errorMessage = `Block ${index} hash (${invalidBlock.hash}) is invalid`;
+          errorLog.push(errorMessage);
+        }
+      });
+      resolve(errorLog);
+    });
+  });
 }
 
 }

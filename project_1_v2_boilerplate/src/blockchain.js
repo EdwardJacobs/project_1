@@ -175,11 +175,19 @@ return new Promise((resolve, reject) => {
  * @param {*} address
  */
 getStarsByWalletAddress (address) {
-let self = this;
-let stars = [];
-return new Promise((resolve, reject) => {
-
-});
+  let self = this;
+  let stars = [];
+  return new Promise((resolve, reject) => {
+    self.chain.forEach(async(b) => {
+      let data = await b.getBData();
+      if (data) {
+        if (data.owner === address) {
+          stars.push(data);
+        }
+      }
+    })
+    resolve(stars);
+  });
 }
 
 /**

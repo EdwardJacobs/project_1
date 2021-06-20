@@ -13,14 +13,14 @@ const SHA256 = require('crypto-js/sha256');
 const hex2ascii = require('hex2ascii');
 
 class Block {
-  // Constructor - argument data will be the object containing the transaction data
-  constructor(data){
-  this.hash = null;                                           // Hash of the block
-  this.height = 0;                                            // Block Height (consecutive number of each block)
-  this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
-  this.time = 0;                                              // Timestamp for the Block creation
-  this.previousBlockHash = null;                              // Reference to the previous Block Hash
-  }
+// Constructor - argument data will be the object containing the transaction data
+constructor(data){
+this.hash = null;                                           // Hash of the block
+this.height = 0;                                            // Block Height (consecutive number of each block)
+this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
+this.time = 0;                                              // Timestamp for the Block creation
+this.previousBlockHash = null;                              // Reference to the previous Block Hash
+}
 
 /**
  *  validate() method will validate if the block has been tampered or not.
@@ -35,22 +35,22 @@ class Block {
  *  Note: to access the class values inside a Promise code you need to create an auxiliary value `let self = this;`
  */
 validate() {
-  let self = this;
-  return new Promise((resolve, reject) => {
-    try {
-      // Save in auxiliary variable the current block hash
-      const currentHash = self.hash;
-      self.hash = null;                             
-      // Recalculate the hash of the Block
-      const newHash = SHA256(JSON.stringify(self)).toString();
-      self.hash = currentHash;
-      // Comparing if the hashes changed
-      resolve (newHash == currentHash);
-    } catch(err) {
-      // Returning the Block is not valid
-      reject(new Error("Block is not valid."));
-    }
-  });
+let self = this;
+return new Promise((resolve, reject) => {
+  try {
+    // Save in auxiliary variable the current block hash
+    const currentHash = self.hash;
+    self.hash = null;                             
+    // Recalculate the hash of the Block
+    const newHash = SHA256(JSON.stringify(self)).toString();
+    self.hash = currentHash;
+    // Comparing if the hashes changed
+    resolve (newHash == currentHash);
+  } catch(err) {
+    // Returning the Block is not valid
+    reject(new Error("Block is not valid."));
+  }
+});
 }
 
 /**
@@ -63,19 +63,21 @@ validate() {
  *     or Reject with an error.
  */
 getBData() {
-  // Getting the encoded data saved in the Block
-  let enc_data = this.body;
+  let self = this;
+    // Getting the encoded data saved in the Block
+  let enc_data = self.body;
   // Decoding the data to retrieve the JSON representation of the object
   let dec_data = hex2ascii(enc_data);
   // Parse the data to an object to be retrieve.
   let dec_data_json = JSON.parse(dec_data);
   // Resolve with the data if the object isn't the Genesis block
-    if (this.height === 0) {
-      resolve("Genesis block");
+    if (this.height == 0) {
+      return("Genesis block");
     } else {
-      resolve(dec_data_json);
+      return(dec_data_json);
     }
-  }
+
+}
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module

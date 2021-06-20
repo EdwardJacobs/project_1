@@ -121,18 +121,18 @@ resolve(OwnershipMessage);
  submitStar(address, message, signature, star) {
   let self = this;
   return new Promise(async (resolve, reject) => {
-      let temps = parseInt(message.split(':')[1]);                              //Get the time from the message sent as a parameter
-      let currentTime = parseInt(new Date().getTime().toString().slice(0, -3)); //Get the current time
-      if (currentTime-temps < (5*60)){                                           //Check if the time elapsed is less than 5 minutes
-          if(bitcoinMessage.verify(message, address, signature)) {              //If yes verify the message
-              let block = new BlockClass.Block({"star":star,"owner":address});  //creation of the new block with the owner and the star 
-              self._addBlock(block);                                            //Add the block
-              resolve(block);                                                   //Resolve with the new block
+      let temps = parseInt(message.split(':')[1]);                           
+      let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+      if (currentTime-temps < (5*60)){                                           
+          if(bitcoinMessage.verify(message, address, signature)) {             
+              let block = new BlockClass.Block({"star":star,"owner":address}); 
+              self._addBlock(block);                                        
+              resolve(block);                                             
           }else{
-              reject(Error('Message is not verified'))                          //Error message
+              reject(Error('Message is not verified'))                     
           }
       }else{
-          reject(Error('too much time has passed, stay below 5 minutes'))       //Error message
+          reject(Error('too much time has passed, stay below 5 minutes'))     
       }
   });
 }
@@ -189,7 +189,7 @@ return new Promise((resolve, reject) => {
           if (data.owner === address){
                   stars.push(data);
           }else{
-              console.log("no address/stars found");
+              reject("no address/stars found");
           }
       });
       resolve(stars);

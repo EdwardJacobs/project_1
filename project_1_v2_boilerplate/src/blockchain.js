@@ -61,24 +61,28 @@ return new Promise((resolve, reject) => {
  * Note: the symbol `_` in the method name indicates in the javascript convention
  * that this method is a private method.
  */
-_addBlock(block) {
-let self = this;
-return new Promise(async (resolve, reject) => {
-block.height = self.chain.length;
-block.time = new Date().getTime().toString().slice(0,-3);
-if (self.chain.length > 0) {
-  block.previousHash = self.chain[self.chain.length -1].hash;
-}
-block.hash = SHA256(JSON.stringify(block)).toString();
-let errors = await self.validateChain();
-if (errors.length === 0) {
-  self.chain.push(block);
-  self.height++;
-  resolve(block);
-} else {
-  reject(errors);
-}
-});
+ _addBlock(block) {
+  let self = this;
+  return new Promise(async (resolve, reject) => {
+      block.height = self.chain.length; //get current height
+      block.time = new Date().getTime().toString().slice(0,-3); //get current time
+      if(self.chain.length>0){
+          block.previousBlockHash = self.chain[self.chain.length-1].hash; //get previous hash
+      }
+      block.hash = SHA256(JSON.stringify(block)).toString(); //calculate hash
+      //Validation
+      console.debug('validation of chain starts here');
+      let errors = await self.validateChain(); //call the validate chain method
+      console.log(errors)
+      console.debug('Validation of chain ended')
+      if (errors.length === 0 ){ //if no errors in blockchain
+          self.chain.push(block); //push new block
+          self.height++; //increment height
+          resolve(block) //resolve the new block
+      }else{
+          reject(errors);
+      }
+  });
 }
 
 /**
@@ -114,22 +118,22 @@ resolve(OwnershipMessage);
  * @param {*} signature
  * @param {*} star
  */
-submitStar(address, message, signature, star) {
+ submitStar(address, message, signature, star) {
   let self = this;
   return new Promise(async (resolve, reject) => {
-    let temps = parseInt(message.split(':')[1]);
-    let currentTime = parseInt(new Date().getTime().toString().slice(0,-3));
-    if (currentTime - temps < (5*60)) {
-      if (bitcoinMessage.verify(message, address, signature)) {
-        let block = new BlockClass.Block({"owner":address, "star":star});
-        self._addBlock(block);
-        resolve(block);
-      } else {
-      reject(Error('Message has not been verified'))
-      } 
-    } else {
-      reject(Error('too much time has passed, stay below 5 minutes'))
-    }
+      let temps = parseInt(message.split(':')[1]);                              //Get the time from the message sent as a parameter
+      let currentTime = parseInt(new Date().getTime().toString().slice(0, -3)); //Get the current time
+      if (currentTime-temps < (5*60)){                                           //Check if the time elapsed is less than 5 minutes
+          if(bitcoinMessage.verify(message, address, signature)) {              //If yes verify the message
+              let block = new BlockClass.Block({"star":star,"owner":address});  //creation of the new block with the owner and the star 
+              self._addBlock(block);                                            //Add the block
+              resolve(block);                                                   //Resolve with the new block
+          }else{
+              reject(Error('Message is not verified'))                          //Error message
+          }
+      }else{
+          reject(Error('too much time has passed, stay below 5 minutes'))       //Error message
+      }
   });
 }
 
@@ -174,19 +178,21 @@ return new Promise((resolve, reject) => {
  * Remember the star should be returned decoded.
  * @param {*} address
  */
-getStarsByWalletAddress (address) {
+ getStarsByWalletAddress (address) {
   let self = this;
   let stars = [];
   return new Promise((resolve, reject) => {
-    self.chain.forEach(async(b) => {
-      let data = await b.getBData();
-      if (data) {
-        if (data.owner === address) {
-          stars.push(data);
-        }
-      }
-    })
-    resolve(stars);
+      self.chain.forEach(async(block) => {
+          let data = await block.getBData();
+          console.log("this ",data)
+          //console.log(address)
+          if (data.owner === address){
+                  stars.push(data);
+          }else{
+              console.log("no address/stars found");
+          }
+      });
+      resolve(stars);
   });
 }
 
@@ -199,7 +205,7 @@ getStarsByWalletAddress (address) {
 validateChain() {
 let self = this;
 let errorLog = [];
-return new Promise(async (resolve, reject) => {
+return new Promise(async (resolve) => {
   let validatePromises = [];
   self.chain.forEach((block, index) => {
     if (block.height > 0) {
